@@ -375,22 +375,22 @@ export function createTextInstance(
   return textNode;
 }
 
-export const isPrimaryRenderer = true;
-export const warnsIfNotActing = true;
+// export const isPrimaryRenderer = true;
+// export const warnsIfNotActing = true;
 // This initialization code may run even on server environments
 // if a component just imports ReactDOM (e.g. for findDOMNode).
 // Some environments might not have setTimeout or clearTimeout.
-export const scheduleTimeout: any =
-  typeof setTimeout === 'function' ? setTimeout : (undefined: any);
-export const cancelTimeout: any =
-  typeof clearTimeout === 'function' ? clearTimeout : (undefined: any);
-export const noTimeout = -1;
+// export const scheduleTimeout: any =
+//   typeof setTimeout === 'function' ? setTimeout : (undefined: any);
+// export const cancelTimeout: any =
+//   typeof clearTimeout === 'function' ? clearTimeout : (undefined: any);
+// export const noTimeout = -1;
 
 // -------------------
 //     Mutation
 // -------------------
 
-export const supportsMutation = true;
+// export const supportsMutation = true;
 
 export function commitMount(
   domElement: Instance,
@@ -645,7 +645,7 @@ export function clearContainer(container: Container): void {
 //     Hydration
 // -------------------
 
-export const supportsHydration = true;
+// export const supportsHydration = true;
 
 export function canHydrateInstance(
   instance: HydratableInstance,
@@ -1098,7 +1098,7 @@ export function getInstanceFromScope(
   return null;
 }
 
-export const supportsTestSelectors = true;
+// export const supportsTestSelectors = true;
 
 export function findFiberRoot(node: Instance): null | FiberRoot {
   const stack = [node];
@@ -1236,3 +1236,5 @@ export function setupIntersectionObserver(
     },
   };
 }
+
+export * from './sy';

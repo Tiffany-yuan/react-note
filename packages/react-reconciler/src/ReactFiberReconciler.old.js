@@ -295,6 +295,7 @@ export function updateContainer(
     }
   }
 
+  // * yuan 1. 创建一个更新（更新也是一个链表）
   const update = createUpdate(eventTime, lane);
   // Caution: React DevTools currently depends on this property
   // being called "element".
@@ -314,7 +315,9 @@ export function updateContainer(
     update.callback = callback;
   }
 
+  // * yuan 2. 将更新入队列
   enqueueUpdate(current, update);
+  // * yuan 3. 处理filber节点上的更新
   scheduleUpdateOnFiber(current, lane, eventTime);
 
   return lane;

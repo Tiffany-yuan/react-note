@@ -531,6 +531,7 @@ export function scheduleUpdateOnFiber(
   // Mark that the root has a pending update.
   markRootUpdated(root, lane, eventTime);
 
+  // * yuan 如果是根节点
   if (root === workInProgressRoot) {
     // Received an update to a tree that's in the middle of rendering. Mark
     // that there was an interleaved update work on this root. Unless the
@@ -562,6 +563,7 @@ export function scheduleUpdateOnFiber(
   const priorityLevel = getCurrentPriorityLevel();
 
   if (lane === SyncLane) {
+    // * yuan render
     if (
       // Check if we're inside unbatchedUpdates
       (executionContext & LegacyUnbatchedContext) !== NoContext &&
@@ -574,10 +576,13 @@ export function scheduleUpdateOnFiber(
       // This is a legacy edge case. The initial mount of a ReactDOM.render-ed
       // root inside of batchedUpdates should be synchronous, but layout updates
       // should be deferred until the end of the batch.
+      // * yuan 处理更新
       performSyncWorkOnRoot(root);
-    } else {
+      // console.log(executionContext); // * my-log
+    } else {// * yuan update
       ensureRootIsScheduled(root, eventTime);
       schedulePendingInteractions(root, lane);
+      // console.log(executionContext); // * my-log
       if (executionContext === NoContext) {
         // Flush the synchronous work now, unless we're already working or inside
         // a batch. This is intentionally inside scheduleUpdateOnFiber instead of
@@ -585,6 +590,7 @@ export function scheduleUpdateOnFiber(
         // without immediately flushing it. We only do this for user-initiated
         // updates, to preserve historical behavior of legacy mode.
         resetRenderTimer();
+        // * yuan 让当前的任务立马去更新
         flushSyncCallbackQueue();
       }
     }
@@ -995,6 +1001,7 @@ function performSyncWorkOnRoot(root) {
       // concurrently. If the whole tree is rendered synchronously, then there
       // are no interleaved events.
       lanes = getNextLanes(root, lanes);
+      // * yuan 从跟节点上去处理更新
       exitStatus = renderRootSync(root, lanes);
     }
   } else {
@@ -1486,7 +1493,7 @@ export function renderHasNotSuspendedYet(): boolean {
   // so those are false.
   return workInProgressRootExitStatus === RootIncomplete;
 }
-
+// * yuan 王朝的更新
 function renderRootSync(root: FiberRoot, lanes: Lanes) {
   const prevExecutionContext = executionContext;
   executionContext |= RenderContext;
@@ -1513,6 +1520,7 @@ function renderRootSync(root: FiberRoot, lanes: Lanes) {
 
   do {
     try {
+      // * yuan 处理
       workLoopSync();
       break;
     } catch (thrownValue) {
@@ -3612,7 +3620,6 @@ export function act(callback: () => Thenable<mixed>): Thenable<void> {
   if (!__DEV__) {
     if (didWarnAboutUsingActInProd === false) {
       didWarnAboutUsingActInProd = true;
-      // eslint-disable-next-line react-internal/no-production-logging
       console.error(
         'act(...) is not supported in production builds of React, and might not behave as expected.',
       );

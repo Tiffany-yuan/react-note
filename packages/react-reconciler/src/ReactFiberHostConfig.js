@@ -1,22 +1,12 @@
-/**
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @flow
+/*
+ * @Author: your name
+ * @Date: 2021-10-11 21:04:10
+ * @LastEditTime: 2021-10-11 21:41:43
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /DebugReact/src/react/packages/react-reconciler/src/ReactFiberHostConfig.js
  */
-
-/* eslint-disable react-internal/invariant-args */
-
-import invariant from 'shared/invariant';
-
-// We expect that our Rollup, Jest, and Flow configurations
-// always shim this module with the corresponding host config
-// (either provided by a renderer, or a generic shim for npm).
-//
-// We should never resolve to this file, but it exists to make
-// sure that if we *do* accidentally break the configuration,
-// the failure isn't silent.
-
-invariant(false, 'This module must be shimmed by a specific renderer.');
+// import invariant from 'shared/invariant';
+//invariant(false, 'This module must be shimmed by a specific renderer.'); //sy
+// sy
+export * from './forks/ReactFiberHostConfig.dom';

@@ -11,7 +11,7 @@ const OFF = 0;
 const ERROR = 2;
 
 module.exports = {
-  extends: ['fbjs', 'prettier'],
+  extends: [], // sy ['fbjs', 'prettier'],
 
   // Stop ESLint from looking for a configuration file in parent folders
   root: true,
@@ -19,9 +19,9 @@ module.exports = {
   plugins: [
     'jest',
     'no-for-of-loops',
-    'no-function-declare-after-return',
+    // 'no-function-declare-after-return',
     'react',
-    'react-internal',
+    // 'react-internal',
   ],
 
   parser: 'babel-eslint',
@@ -48,6 +48,7 @@ module.exports = {
     'jsx-quotes': [ERROR, 'prefer-double'],
     'keyword-spacing': [ERROR, {after: true, before: true}],
     'no-bitwise': OFF,
+    'no-console': OFF,
     'no-inner-declarations': [ERROR, 'functions'],
     'no-multi-spaces': ERROR,
     'no-restricted-globals': [ERROR].concat(restrictedGlobals),
@@ -61,6 +62,8 @@ module.exports = {
     'space-before-blocks': ERROR,
     'space-before-function-paren': OFF,
     'valid-typeof': [ERROR, {requireStringLiterals: true}],
+    // Flow fails with with non-string literal keys
+    'no-useless-computed-key': OFF,
 
     // We apply these settings to files that should run on Node.
     // They can't use JSX or ES6 modules, and must be in strict mode.
@@ -74,6 +77,8 @@ module.exports = {
     // deal. But I turned it off because loading the plugin causes some obscure
     // syntax error and it didn't seem worth investigating.
     'max-len': OFF,
+    // Prettier forces semicolons in a few places
+    'flowtype/object-type-delimiter': OFF,
 
     // React & JSX
     // Our transforms set this automatically
@@ -97,29 +102,25 @@ module.exports = {
     // You can disable this rule for code that isn't shipped (e.g. build scripts and tests).
     'no-for-of-loops/no-for-of-loops': ERROR,
 
+    // sy
     // Prevent function declarations after return statements
-    'no-function-declare-after-return/no-function-declare-after-return': ERROR,
+    // 'no-function-declare-after-return/no-function-declare-after-return': ERROR, // sy
 
     // CUSTOM RULES
     // the second argument of warning/invariant should be a literal string
-    'react-internal/no-primitive-constructors': ERROR,
-    'react-internal/no-to-warn-dev-within-to-throw': ERROR,
-    'react-internal/invariant-args': ERROR,
-    'react-internal/warning-args': ERROR,
-    'react-internal/no-production-logging': ERROR,
-    'react-internal/no-cross-fork-imports': ERROR,
-    'react-internal/no-cross-fork-types': [
-      ERROR,
-      {
-        old: [
-          'firstEffect',
-          'nextEffect',
-          // Disabled because it's also used by the Hook type.
-          // 'lastEffect',
-        ],
-        new: ['subtreeFlags'],
-      },
-    ],
+    // 'react-internal/no-primitive-constructors': ERROR,
+    // 'react-internal/no-to-warn-dev-within-to-throw': ERROR,
+    // 'react-internal/invariant-args': ERROR,
+    // 'react-internal/warning-args': ERROR,
+    // 'react-internal/no-production-logging': ERROR,
+    // 'react-internal/no-cross-fork-imports': ERROR,
+    // 'react-internal/no-cross-fork-types': [
+    //   ERROR,
+    //   {
+    //     old: [],
+    //     new: [],
+    //   },
+    // ],
   },
 
   overrides: [
@@ -172,16 +173,27 @@ module.exports = {
       rules: {
         'react-internal/no-production-logging': OFF,
         'react-internal/warning-args': OFF,
+
+        // Disable accessibility checks
+        'jsx-a11y/aria-role': OFF,
+        'jsx-a11y/no-noninteractive-element-interactions': OFF,
+        'jsx-a11y/no-static-element-interactions': OFF,
+        'jsx-a11y/role-has-required-aria-props': OFF,
+        'jsx-a11y/no-noninteractive-tabindex': OFF,
+        'jsx-a11y/tabindex-no-positive': OFF,
       },
     },
     {
-      files: ['packages/react-native-renderer/**/*.js'],
+      files: [
+        'packages/react-native-renderer/**/*.js',
+        'packages/react-server-native-relay/**/*.js',
+      ],
       globals: {
         nativeFabricUIManager: true,
       },
     },
     {
-      files: ['packages/react-transport-dom-webpack/**/*.js'],
+      files: ['packages/react-server-dom-webpack/**/*.js'],
       globals: {
         __webpack_chunk_load__: true,
         __webpack_require__: true,
@@ -201,9 +213,11 @@ module.exports = {
     spyOnDev: true,
     spyOnDevAndProd: true,
     spyOnProd: true,
-    __PROFILE__: true,
-    __UMD__: true,
     __EXPERIMENTAL__: true,
+    __EXTENSION__: true,
+    __PROFILE__: true,
+    __TEST__: true,
+    __UMD__: true,
     __VARIANT__: true,
     gate: true,
     trustedTypes: true,

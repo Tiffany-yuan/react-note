@@ -331,6 +331,7 @@ function checkShouldComponentUpdate(
     return shouldUpdate;
   }
 
+  // * yuan pureComponent在这里判断
   if (ctor.prototype && ctor.prototype.isPureReactComponent) {
     return (
       !shallowEqual(oldProps, newProps) || !shallowEqual(oldState, newState)
@@ -561,6 +562,7 @@ function checkClassInstance(workInProgress: Fiber, ctor: any, newProps: any) {
 }
 
 function adoptClassInstance(workInProgress: Fiber, instance: any): void {
+  // * yuan 在这里挂的updater
   instance.updater = classComponentUpdater;
   workInProgress.stateNode = instance;
   // The instance needs access to the fiber so that it can schedule updates
@@ -622,6 +624,7 @@ function constructClassInstance(
     }
   }
 
+  // * yuan 处理context
   if (typeof contextType === 'object' && contextType !== null) {
     context = readContext((contextType: any));
   } else if (!disableLegacyContext) {
@@ -649,11 +652,13 @@ function constructClassInstance(
     }
   }
 
+  // * yuan 实例化
   const instance = new ctor(props, context);
   const state = (workInProgress.memoizedState =
     instance.state !== null && instance.state !== undefined
       ? instance.state
       : null);
+  // * yuan 执行生命周期
   adoptClassInstance(workInProgress, instance);
 
   if (__DEV__) {
@@ -821,8 +826,10 @@ function mountClassInstance(
 
   initializeUpdateQueue(workInProgress);
 
+  // * yuan 类组件里取context，一定得取名为contextType依据，这里直接取的constructor上的contextType
   const contextType = ctor.contextType;
   if (typeof contextType === 'object' && contextType !== null) {
+    // * yuan 将context挂载到实例上，所以类组件任何生命周期都能取到context
     instance.context = readContext(contextType);
   } else if (disableLegacyContext) {
     instance.context = emptyContextObject;
@@ -861,10 +868,12 @@ function mountClassInstance(
   }
 
   processUpdateQueue(workInProgress, newProps, instance, renderLanes);
+    // * yuan 组件将要挂载，将state赋在实例上 
   instance.state = workInProgress.memoizedState;
 
   const getDerivedStateFromProps = ctor.getDerivedStateFromProps;
   if (typeof getDerivedStateFromProps === 'function') {
+    // * yuan 执行生命周期
     applyDerivedStateFromProps(
       workInProgress,
       ctor,
@@ -882,11 +891,15 @@ function mountClassInstance(
     (typeof instance.UNSAFE_componentWillMount === 'function' ||
       typeof instance.componentWillMount === 'function')
   ) {
+    // * yuan componentWillMount 现在不建议使用了，因为react15之后，filber任务是可中断的，
+    // 如果现在有filber任务正在执行，有优先级更高的任务插进来，当前正在执行的任务会被中断。这个时候组件有可能还没被挂载，componentWillMount可能会被重复执行，就失去了原先的意义。
     callComponentWillMount(workInProgress, instance);
     // If we had additional state updates during this life-cycle, let's
     // process them now.
+
+    // * yuan处理更新 ！！！！！！！！！！！！！！！重要
     processUpdateQueue(workInProgress, newProps, instance, renderLanes);
-    instance.state = workInProgress.memoizedState;
+    instance.state = workInProgress.memoizedState; 
   }
 
   if (typeof instance.componentDidMount === 'function') {
@@ -987,6 +1000,7 @@ function resumeMountClassInstance(
       nextContext,
     );
 
+  // * yuan 如果需要更新的话，执行生命周期
   if (shouldUpdate) {
     // In order to support react-lifecycles-compat polyfilled components,
     // Unsafe lifecycles should not be invoked for components using the new APIs.
@@ -1093,6 +1107,7 @@ function updateClassInstance(
   processUpdateQueue(workInProgress, newProps, instance, renderLanes);
   newState = workInProgress.memoizedState;
 
+  // * yuan 如果都没变的话，就不需要更新
   if (
     unresolvedOldProps === unresolvedNewProps &&
     oldState === newState &&

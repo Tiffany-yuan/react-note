@@ -60,8 +60,8 @@ var LOW_PRIORITY_TIMEOUT = 10000;
 var IDLE_PRIORITY_TIMEOUT = maxSigned31BitInt;
 
 // Tasks are stored on a min heap
-var taskQueue = [];
-var timerQueue = [];
+var taskQueue = []; // * yuan 立即要执行的任务
+var timerQueue = []; // * yuan 可以延迟执行的任务
 
 // Incrementing id counter. Used to maintain insertion order.
 var taskIdCounter = 1;
@@ -213,7 +213,7 @@ function workLoop(hasTimeRemaining, initialTime) {
     return false;
   }
 }
-
+// * yuan 五种优先级
 function unstable_runWithPriority(priorityLevel, eventHandler) {
   switch (priorityLevel) {
     case ImmediatePriority:
@@ -275,7 +275,7 @@ function unstable_wrapCallback(callback) {
     }
   };
 }
-
+// * yuan 调度优先级 在scheduleCallback中优先级意味着过期时间
 function unstable_scheduleCallback(priorityLevel, callback, options) {
   var currentTime = getCurrentTime();
 
@@ -314,21 +314,23 @@ function unstable_scheduleCallback(priorityLevel, callback, options) {
   var expirationTime = startTime + timeout;
 
   var newTask = {
-    id: taskIdCounter++,
-    callback,
-    priorityLevel,
-    startTime,
-    expirationTime,
-    sortIndex: -1,
+    id: taskIdCounter++, // 标记任务id
+    callback, // 回调函数
+    priorityLevel, // 任务优先级
+    startTime, // 任务开始时间，时间点
+    expirationTime, // 过期时间，时间点
+    sortIndex: -1, // 任务排序，取值来自过期时间，因此值越小，优先级越高
   };
   if (enableProfiling) {
     newTask.isQueued = false;
   }
 
-  if (startTime > currentTime) {
+  if (startTime > currentTime) { // 未过期
     // This is a delayed task.
     newTask.sortIndex = startTime;
+    // * yuan 未过期任务task存放在timerQueue中
     push(timerQueue, newTask);
+    // * yuan ，如果此时taskQueue中还没有过期任务，timerQueue中离过期时间最近的task正好是newTask，则设置个定时器，到了过期时间就加入taskQueue中
     if (peek(taskQueue) === null && newTask === peek(timerQueue)) {
       // All tasks are delayed, and this is the task with the earliest delay.
       if (isHostTimeoutScheduled) {
@@ -342,6 +344,7 @@ function unstable_scheduleCallback(priorityLevel, callback, options) {
     }
   } else {
     newTask.sortIndex = expirationTime;
+    // * yuan 过期任务task存放在taskQueue中
     push(taskQueue, newTask);
     if (enableProfiling) {
       markTaskStart(newTask, currentTime);

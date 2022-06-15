@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-10-11 21:04:10
+ * @LastEditTime: 2021-10-11 21:28:14
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /DebugReact/src/react/packages/shared/invariant.js
+ */
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -18,6 +26,7 @@
  */
 
 export default function invariant(condition, format, a, b, c, d, e, f) {
+  if (condition) return; // sy 加上这个
   throw new Error(
     'Internal React error: invariant() is meant to be replaced at compile ' +
       'time. There is no runtime version.',

@@ -769,10 +769,10 @@ function ChildReconciler(shouldTrackSideEffects) {
   }
 
   function reconcileChildrenArray(
-    returnFiber: Fiber,
-    currentFirstChild: Fiber | null,
-    newChildren: Array<*>,
-    lanes: Lanes,
+    returnFiber: Fiber, // 父fiber
+    currentFirstChild: Fiber | null, // children中的第一个节点
+    newChildren: Array<*>, // 新节点数组，即jsx数组
+    lanes: Lanes, // 优先级
   ): Fiber | null {
     // This algorithm can't optimize by searching from both ends since we
     // don't have backpointers on fibers. I'm trying to see how far we can get
@@ -793,6 +793,13 @@ function ChildReconciler(shouldTrackSideEffects) {
     // If you change this code, also update reconcileChildrenIterator() which
     // uses the same algorithm.
 
+    /**
+     * * yuan 有三个for循环
+     * 1. 遍历处理节点的更新（包括props更新和type更新和删除）
+     * 2. 遍历处理其他的情况（节点新增）
+     * 3. 处理位节点置改变
+     *  */ 
+
     if (__DEV__) {
       // First, validate keys.
       let knownKeys = null;
@@ -802,13 +809,30 @@ function ChildReconciler(shouldTrackSideEffects) {
       }
     }
 
+    // * yuan 返回一个子节点
     let resultingFirstChild: Fiber | null = null;
+    // * yuan 记录上一个fiber，方便给filber赋值sibling
     let previousNewFiber: Fiber | null = null;
 
+    // * yuan 老的第一个子节点
     let oldFiber = currentFirstChild;
+    // * yuan 记录上次插入的位置
+    /** 这里的lastPlaceIndex是一种顺序优化手段
+     * 
+     * 首先对新集合的节点进行循环遍历，通过唯一 key 可以判断新老集合中是否存在相同的节点，
+     * 如果存在相同节点，则进行移动操作，
+     * 但在移动前需要将当前节点在老集合中的位置与 lastPlacedIndex 进行比较，
+     * if (oldIndex < lastPlacedIndex)，则进行节点移动操作，否则不执行该操作。
+     * 这是一种顺序优化手段，lastPlacedIndex 一直在更新，表示访问过的节点在老集合中最右的位置（即最大的位置），
+     * 如果新集合中当前访问的节点比 lastPlacedIndex 大，说明当前访问节点在老集合中就比上一个节点位置靠后，
+     * 则该节点不会影响其他节点的位置，因此不用添加到差异队列中，即不执行移动操作，
+     * 只有当访问的节点比 lastPlacedIndex 小时，才需要进行移动操作。
+     * */
+    // * yuan lastPlacedIndex初始为0，每遍历一个可复用的节点，如果oldIndex >= lastPlacedIndex，则lastPlacedIndex = oldIndex
     let lastPlacedIndex = 0;
     let newIdx = 0;
     let nextOldFiber = null;
+    // * yuan 1. 处理更新（需要考虑相对位置有没有发生改变，如果位置发生了改变，需要处理PLACEMENTANDUPDATE）
     for (; oldFiber !== null && newIdx < newChildren.length; newIdx++) {
       if (oldFiber.index > newIdx) {
         nextOldFiber = oldFiber;
@@ -854,16 +878,19 @@ function ChildReconciler(shouldTrackSideEffects) {
       oldFiber = nextOldFiber;
     }
 
+    // * yuan 如果还有多的删除
     if (newIdx === newChildren.length) {
       // We've reached the end of the new children. We can delete the rest.
       deleteRemainingChildren(returnFiber, oldFiber);
       return resultingFirstChild;
     }
 
+    // * yuan 2. 初次渲染（更新也可能走到这里）
     if (oldFiber === null) {
       // If we don't have any more existing children we can choose a fast path
       // since the rest will all be insertions.
       for (; newIdx < newChildren.length; newIdx++) {
+        // 挨个生成新节点就行了
         const newFiber = createChild(returnFiber, newChildren[newIdx], lanes);
         if (newFiber === null) {
           continue;
@@ -881,8 +908,16 @@ function ChildReconciler(shouldTrackSideEffects) {
     }
 
     // Add all children to a key map for quick lookups.
+    // * yuan 因为处理链表的获取节点和删除节点很麻烦，所以react生成了一张链表图 map
+    // * yuan 为什么react中有个约定，定义key值的时候要保证唯一性且尽量不要用index？ 
+    // * yuan 因为index代表了下标，可能会变，不稳定。react中已经做了兼容处理，如果没有key值，就用index当作map的key
+    // {a: filberA, b: filberB}
     const existingChildren = mapRemainingChildren(returnFiber, oldFiber);
 
+    // * yuan 进行更新
+    // newChildren 新链表3个节点
+    // existingChildren 老链表5个节点  有2个节点用不着
+    // 遍历新节点，每遍历一次，如果在老节点上找到，就从老节点上删除该节点，最后遍历完下来，老节点上剩下的就是需要删除的节点
     // Keep scanning and use the map to restore deleted items as moves.
     for (; newIdx < newChildren.length; newIdx++) {
       const newFiber = updateFromMap(

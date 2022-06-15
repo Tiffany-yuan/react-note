@@ -152,6 +152,7 @@ function FiberNode(
   this.lanes = NoLanes;
   this.childLanes = NoLanes;
 
+  // * yuan 相当于是当前fiber节点的备份
   this.alternate = null;
 
   if (enableProfilerTimer) {

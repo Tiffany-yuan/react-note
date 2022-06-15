@@ -188,8 +188,10 @@ function legacyRenderSubtreeIntoContainer(
   // member of intersection type." Whyyyyyy.
   let root: RootType = (container._reactRootContainer: any);
   let fiberRoot;
+  // * yuan 判断有没有老的虚拟dom节点
   if (!root) {
     // Initial mount
+    // * yuan 没有的话就生成
     root = container._reactRootContainer = legacyCreateRootFromDOMContainer(
       container,
       forceHydrate,

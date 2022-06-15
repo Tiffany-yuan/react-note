@@ -507,6 +507,7 @@ export function processUpdateQueue<State>(
         }
 
         // Process this update.
+        // * yuan 处理update
         newState = getStateFromUpdate(
           workInProgress,
           queue,

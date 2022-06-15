@@ -132,11 +132,11 @@ if (__DEV__) {
 }
 
 export type Hook = {|
-  memoizedState: any,
+  memoizedState: any, // * yuan 保存hook对应的state
   baseState: any,
   baseQueue: Update<any, any> | null,
-  queue: UpdateQueue<any, any> | null,
-  next: Hook | null,
+  queue: UpdateQueue<any, any> | null, // * yuan 这里保存的是update的queue
+  next: Hook | null, // * yuan 与下一个Hook连接形成单向无环链
 |};
 
 export type Effect = {|
@@ -1668,6 +1668,7 @@ function dispatchAction<S, A>(
     next: (null: any),
   };
 
+  // * yuan 环形单向链表结构
   // Append the update to the end of the list.
   const pending = queue.pending;
   if (pending === null) {
@@ -1735,6 +1736,7 @@ function dispatchAction<S, A>(
         warnIfNotCurrentlyActingUpdatesInDev(fiber);
       }
     }
+    // * yuan 开始调度更新
     scheduleUpdateOnFiber(fiber, lane, eventTime);
   }
 

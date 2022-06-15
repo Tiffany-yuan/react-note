@@ -9,6 +9,7 @@
 
 import type {FiberRoot, ReactPriorityLevel} from './ReactInternalTypes';
 
+// * yuan return_highestLanePriority 有如下这些值，值越大，优先级越高
 export opaque type LanePriority =
   | 0
   | 1
@@ -70,6 +71,10 @@ const OffscreenLanePriority: LanePriority = 1;
 export const NoLanePriority: LanePriority = 0;
 
 const TotalLanes = 31;
+
+// * yuan 优先级现在不是比较比较大小 而是位运算 判断是否包含 ！！！
+// https://juejin.cn/post/6951206227418284063
+// //（NoLanes到OffscreenLane优先级是降低的）
 
 export const NoLanes: Lanes = /*                        */ 0b0000000000000000000000000000000;
 export const NoLane: Lane = /*                          */ 0b0000000000000000000000000000000;

@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-10-11 21:26:02
+ * @LastEditTime: 2021-10-11 21:34:34
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: /react/packages/shared/consoleWithStackDev.js
+ */
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -41,7 +49,6 @@ function printWarning(level, format, args) {
     argsWithFormat.unshift('Warning: ' + format);
     // We intentionally don't use spread (or .apply) directly because it
     // breaks IE9: https://github.com/facebook/react/issues/13610
-    // eslint-disable-next-line react-internal/no-production-logging
     Function.prototype.apply.call(console[level], console, argsWithFormat);
   }
 }

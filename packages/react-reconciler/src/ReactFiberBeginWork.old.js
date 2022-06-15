@@ -886,9 +886,9 @@ function updateClassComponent(
   }
   prepareToReadContext(workInProgress, renderLanes);
 
-  const instance = workInProgress.stateNode;
+  const instance = workInProgress.stateNode;// * yuan stateNode存的真实dom节点
   let shouldUpdate;
-  if (instance === null) {
+  if (instance === null) {// * yuan 初次渲染
     if (current !== null) {
       // A class component without an instance only mounts if it suspended
       // inside a non-concurrent tree, in an inconsistent state. We want to
@@ -900,8 +900,11 @@ function updateClassComponent(
       workInProgress.flags |= Placement;
     }
     // In the initial pass we might need to construct the instance.
+    // * yuan 构造当前类的实例，new Component
     constructClassInstance(workInProgress, Component, nextProps);
+    // * yuan 挂载当前组件实例
     mountClassInstance(workInProgress, Component, nextProps, renderLanes);
+    // * yuan 对应componentShouldUpdate生命周期，初次渲染肯定会被更新，所以这里设为true
     shouldUpdate = true;
   } else if (current === null) {
     // In a resume, we'll already have an instance we can reuse.
@@ -920,6 +923,7 @@ function updateClassComponent(
       renderLanes,
     );
   }
+  // * yuan 执行render函数，返回下一个任务
   const nextUnitOfWork = finishClassComponent(
     current,
     workInProgress,
@@ -1002,6 +1006,7 @@ function finishClassComponent(
       }
       setIsRendering(false);
     } else {
+      // * yuan 执行render函数
       nextChildren = instance.render();
     }
   }
@@ -1020,6 +1025,7 @@ function finishClassComponent(
       renderLanes,
     );
   } else {
+    // * yuan 协调
     reconcileChildren(current, workInProgress, nextChildren, renderLanes);
   }
 
@@ -3357,7 +3363,7 @@ function beginWork(
       const unresolvedProps = workInProgress.pendingProps;
       const resolvedProps =
         workInProgress.elementType === Component
-          ? unresolvedProps
+          ? unresolvedProps 
           : resolveDefaultProps(Component, unresolvedProps);
       return updateClassComponent(
         current,

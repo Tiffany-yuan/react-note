@@ -969,7 +969,6 @@ function createReactNoop(reconciler: Function, useMutation: boolean) {
       const root = roots.get(rootID);
       const rootContainer = rootContainers.get(rootID);
       if (!root || !rootContainer) {
-        // eslint-disable-next-line react-internal/no-production-logging
         console.log('Nothing rendered yet.');
         return;
       }
@@ -1068,7 +1067,6 @@ function createReactNoop(reconciler: Function, useMutation: boolean) {
       log('FIBERS:');
       logFiber(root.current, 0);
 
-      // eslint-disable-next-line react-internal/no-production-logging
       console.log(...bufferedLog);
     },
 
